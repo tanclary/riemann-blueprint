@@ -1,6 +1,6 @@
 # Distilling & Shrinking the 17.37M-Line Riemann Hypothesis Proof
 
-**By Tanner Clary ([@tanclary](https://github.com/tanclary)) & Gemini 4 Carbon** · November 2026 · **[Live Interactive Dominator Flamegraph & Blueprint](https://tanclary.github.io/riemann-blueprint/)**
+**By Tanner Clary ([@tanclary](https://github.com/tanclary)) & Gemini 4 Carbon** · November 2026 · **[Live Interactive Dominator Flamegraph](https://tanclary.github.io/riemann-blueprint/)** · **[Download Skinny Archives (`v0.2.0`)](https://github.com/tanclary/riemann-blueprint/releases/tag/v0.2.0)**
 
 On November 20, 2026, Levent Alpöge and Claude released a formal Lean 4 proof of the Riemann Hypothesis (and Dirichlet GRH) spanning **175,187 `.lean` files** and **17,374,215 lines of code**. Because naive natural-language translation exceeded 250,000 pages and static module `import` graphs touch 99.8% of the repository, two questions remained open:
 
@@ -18,8 +18,8 @@ We treated the proof like a compiler IR problem: joining all 175,187 source file
 | **Raw Archive (`alpo.ge`)** | 175,187 | 1,061,425 | 17,374,215 | 1,468,418 | — |
 | **Static `import` Reachability** | 174,767 | ~1,059,000 | 17,330,139 | — | -0.25% LOC |
 | **Pass 1: Exact Kernel Reachability** | 146,134 | 744,681 | 10,604,250 *(in decls)* | — | -16.6% files |
-| **Pass 2: Call-Site `Def` + `Prop` CSE** | 105,044 | 642,843 | 10,406,044 *(per-file)* | **1,167,754** | **-40.0% files / -20.5% kernel** |
-| **Pass 3: Namespace-Coalesced Clean Repo** | 105,044 *(logical)* | 642,843 | **9,282,866** | **1,167,754** | **-46.6% LOC (-8.09M lines)** |
+| **Pass 2: Call-Site `Def` + `Prop` CSE (V1)** | 105,046 | 642,843 | 10,406,172 *(per-file)* | 1,167,754 | -40.0% files / -20.5% kernel |
+| **Pass 3: Alpha/Universe Cascade CSE + Bundled Layers (V2)** | **5,770** *(antichain)* | 642,843 | **9,267,866** *(code)* | **1,141,023** | **-96.7% files / -46.6% LOC / -22.3% kernel** |
 | **Human Blueprint ([`Blueprint.lean`](Blueprint.lean))** | 1 | 35 *(spine)* | **245** | — | 6-Act human spine |
 
 ### Key Findings
@@ -46,7 +46,7 @@ We treated the proof like a compiler IR problem: joining all 175,187 source file
 Full log in [`data/con_ron_receipt.log`](data/con_ron_receipt.log):
 
 ```text
-con-ron: accepted 51692 declarations, 5 axioms justified by the solution solution_shrunk.ndjson (1167754 declarations accepted) (--verified)
+con-ron: accepted 51692 declarations, 5 axioms justified by the solution solution_skinny.ndjson (1141023 declarations accepted) (--verified)
 con-ron: theorem riemannHypothesis justified by the solution
 con-ron: theorem riemannZeta_eq_zero_re justified by the solution
 con-ron: theorem LFunction_ne_zero_of_half_lt_re justified by the solution
@@ -56,13 +56,31 @@ con-ron: theorem LFunction_eq_zero_re_of_isPrimitive justified by the solution
 
 ---
 
-## Repository Contents & Reproduction
+## Anatomy of the Remaining 9.27M Live Code Lines (`audit_9m`)
 
-- [`Blueprint.lean`](Blueprint.lean) — Human-readable 6-Act Lean 4 architectural spine with exact theorem signatures and Lengauer–Tarjan dominated LOC weights.
-- [`docs/index.html`](docs/index.html) — Standalone interactive `pprof`-style Dominator Flamegraph, 6-Act walkthrough, and shrink waterfall explorer (GitHub Pages ready).
-- [`data/dom_top300.tsv`](data/dom_top300.tsv) — Top 300 Lengauer–Tarjan dominator choke-points across the cleaned proof DAG.
-- [`tools/`](tools/) — Five C++20 compiler/graph passes (`index_lean_tar.cpp`, `extract_dag.cpp`, `dominators.cpp`, `compact_repo.cpp`, `rewrite_export.cpp`).
-- [`scripts/reproduce.sh`](scripts/reproduce.sh) — End-to-end download, SHA-256 verification, DAG extraction, dominator analysis, and `solution_shrunk.ndjson` generation (~25 GB RAM, Linux x86_64/aarch64).
+Why does zero-elaboration compiler pruning hit a floor at `9,267,866` declaration code lines (`642,843` live source declarations)?
+
+| Category | Decls | Clean Code Lines | Share of 9.27M |
+| :--- | ---: | ---: | ---: |
+| **1-caller stepping-stone lemmas** *(used once in entire DAG)* | 273,510 | **4,836,836** | **52.19%** |
+| ↳ *of which same-file-only helpers* | 192,955 | 2,808,075 | 30.30% |
+| **$\le$2-caller lemmas** | 388,055 | **6,538,971** | **70.56%** |
+| **Clone / Bridge / Shadow union** (`2,631` isomorphic `struct`/`inductive`s) | — | **2,615,410** | **28.22%** |
+| **Proof tactic bodies** *(containing **1,562,741 manual `have` subgoals**)* | — | **7,695,767** | **83.04%** |
+| **Declaration headers / type signatures** *(only `9,398` `@`-heavy lines)* | — | **1,572,099** | **16.96%** |
+
+Almost two-thirds of the surviving proof lives in two directories: `Development.AbelianVarietyTheory` (`4,252,063` lines, `45.9%`) and `Formalism` interface plumbing (`1,753,155` lines, `18.9%`).
+
+---
+
+## Repository Contents & Prebuilt Releases
+
+Download prebuilt skinny source and `con-ron`-verified kernel archives from **[Release `v0.2.0`](https://github.com/tanclary/riemann-blueprint/releases/tag/v0.2.0)**:
+- `riemann-skinny-src.tar.zst` (**118 MiB**) — 1:1 module paths across all `105,046` live `.lean` files (`-71.9%` imports, dead decls stripped).
+- `riemann-skinny-bundled.tar.zst` (**114 MiB**) — DAG-antichain coalesced into **`5,770` layer modules (`-96.7%` files, `-96.9%` imports)**.
+- `solution_skinny.ndjson.zst.part00..03` (**6.73 GiB** total) — V2 `con-ron --verified` kernel export (`1,141,023` fold records, `-22.3%`; `1.28M` names, `-90.9%`).
+
+Tools in [`tools/`](tools/): `index_lean_tar.cpp`, `extract_dag.cpp`, `dominators.cpp`, `compact_repo.cpp`, `rewrite_export.cpp`, `rewrite_export_v2.cpp`, `audit_9m.cpp`, `build_skinny_tar.cpp`, `build_bundled_tar.cpp`.
 
 ```bash
 chmod +x scripts/reproduce.sh
