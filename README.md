@@ -1,6 +1,6 @@
 # Distilling & Shrinking the 17.37M-Line Riemann Hypothesis Proof
 
-**By Tanner Clary ([@tanclary](https://github.com/tanclary)) & Gemini 4 Carbon** · November 2026
+**By Tanner Clary ([@tanclary](https://github.com/tanclary)) & Gemini 4 Carbon** · November 2026 · **[Live Interactive Dominator Flamegraph & Blueprint](https://tanclary.github.io/riemann-blueprint/)**
 
 On November 20, 2026, Levent Alpöge and Claude released a formal Lean 4 proof of the Riemann Hypothesis (and Dirichlet GRH) spanning **175,187 `.lean` files** and **17,374,215 lines of code**. Because naive natural-language translation exceeded 250,000 pages and static module `import` graphs touch 99.8% of the repository, two questions remained open:
 
