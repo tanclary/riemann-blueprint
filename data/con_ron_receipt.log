@@ -1,0 +1,33 @@
+Protected baseline names: 53722
+=== PASS 1: Streaming solution.ndjson.zst ===
+  Pass 1: 128M lines, exprs=131699309, decls=333843
+  Pass 1: 256M lines, exprs=264105521, decls=507933
+  Pass 1: 384M lines, exprs=396739487, decls=655375
+  Pass 1: 512M lines, exprs=529221228, decls=839883
+  Pass 1: 640M lines, exprs=662008244, decls=976571
+  Pass 1: 768M lines, exprs=794141875, decls=1168827
+  Pass 1: 896M lines, exprs=926322404, decls=1307178
+  Pass 1: 1024M lines, exprs=1058323723, decls=1474756
+Exact kernel-safe CSE candidates: 276871 thms, 8899 defs.
+GC Summary:
+  Declarations: 1484733 -> 1184041 (-300692, -20.2523%)
+  Expressions:  1065214335 -> 1048468385 (-16745950, -1.57207%)
+=== PASS 2: Writing shrunk export to solution_shrunk.ndjson ===
+Done! Wrote 1063722894 lines (from 1080769508).
+
+con-ron: reading challenge.ndjson
+con-ron: reading solution_shrunk.ndjson
+con-ron: parse done: 1167754 fold records — the file's 1167754, 0 built-in prelude records synthesised; store 1037394922 expression, 21605 level, 14065181 name nodes t=789.740s (parse 789.740s)
+con-ron: checking: 1167754 declarations on 64 workers t=789.740s
+con-ron: check done: 1167754 declarations t=978.246s (check 188.506s)
+con-ron: done: parse 789.740s, check 188.506s, 64 workers t=978.246s
+con-ron: parse done: 51692 fold records — the file's 51692, 0 built-in prelude records synthesised; store 1037394922 expression, 21605 level, 14065181 name nodes t=979.683s (parse 979.683s)
+con-ron: checking: 51692 declarations on 64 workers t=979.683s
+con-ron: check done: 51692 declarations t=980.379s (check 0.696s)
+con-ron: done: parse 979.683s, check 0.696s, 64 workers t=980.379s
+con-ron: accepted 51692 declarations, 5 axioms justified by the solution solution_shrunk.ndjson (1167754 declarations accepted) (--verified)
+con-ron: theorem riemannHypothesis justified by the solution
+con-ron: theorem riemannZeta_eq_zero_re justified by the solution
+con-ron: theorem LFunction_ne_zero_of_half_lt_re justified by the solution
+con-ron: theorem LFunction_eq_zero_re justified by the solution
+con-ron: theorem LFunction_eq_zero_re_of_isPrimitive justified by the solution

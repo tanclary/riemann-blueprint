@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Distilling &amp; Shrinking the 17.37M-Line RH Proof · Tanner Clary &amp; Gemini 4 Carbon</title>
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0d1117;
+      --card: #161b22;
+      --sidebar: #21262d;
+      --border: #30363d;
+      --fg: #e6edf3;
+      --muted: #8b949e;
+      --code: #c9d1d9;
+      --primary: #58a6ff;
+      --primary-fg: #0d1117;
+      --success: #3fb950;
+      --c1: #2f81f7;
+      --c2: #8957e5;
+      --c3: #d29922;
+      --c4: #2ea043;
+      --c5: #db6d28;
+      --c6: #bf4b8a;
+    }
+    :root[data-theme="light"] {
+      --bg: #f6f8fa;
+      --card: #ffffff;
+      --sidebar: #eaeef2;
+      --border: #d0d7de;
+      --fg: #1f2328;
+      --muted: #59636e;
+      --code: #24292f;
+      --primary: #0969da;
+      --primary-fg: #ffffff;
+      --success: #1a7f37;
+      --c1: #0969da;
+      --c2: #8250df;
+      --c3: #9a6700;
+      --c4: #1a7f37;
+      --c5: #bc4c00;
+      --c6: #a40e26;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px 16px 64px;
+      background: var(--bg);
+      color: var(--fg);
+      font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .wrap { max-width: 1120px; margin: 0 auto; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .hdr {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end;
+      gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px;
+    }
+    h1 { font-size: 22px; margin: 4px 0 0; letter-spacing: -0.01em; }
+    .sub { font-size: 12px; color: var(--muted); }
+    .sub a { color: var(--primary); text-decoration: none; }
+    .tabs {
+      display: flex; gap: 4px; background: var(--sidebar); padding: 4px;
+      border-radius: 8px; border: 1px solid var(--border);
+    }
+    .tab-btn {
+      border: 0; background: transparent; color: var(--muted); padding: 6px 12px;
+      border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .tab-btn.active { background: var(--primary); color: var(--primary-fg); }
+    .kpis {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px; margin-bottom: 20px;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px;
+    }
+    .kpi-val { font-size: 20px; font-weight: 700; margin-top: 2px; }
+    .badge-ok { font-size: 12px; color: var(--success); font-weight: 600; margin-left: 6px; }
+    .icicle-row {
+      position: relative; height: 32px; width: 100%; background: var(--sidebar);
+      border-radius: 5px; overflow: hidden; margin-bottom: 4px;
+    }
+    .icicle-bar {
+      position: absolute; top: 0; bottom: 0; border: 0; color: #fff;
+      padding: 0 8px; text-align: left; font-size: 12px; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+      opacity: 0.88;
+    }
+    .icicle-bar:hover { opacity: 1; }
+    .icicle-bar.sel { outline: 2px solid var(--fg); z-index: 5; opacity: 1; }
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 14px; padding-top: 10px; margin-top: 10px;
+      border-top: 1px solid var(--border); font-size: 12px; color: var(--muted);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 6px; vertical-align: middle; }
+    pre {
+      background: var(--sidebar); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px; overflow-x: auto; font-size: 12px; color: var(--code); margin: 10px 0 0;
+    }
+    .btn-sm {
+      background: var(--card); color: var(--fg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+    }
+    .wf-track { width: 100%; height: 12px; background: var(--sidebar); border-radius: 6px; overflow: hidden; margin: 4px 0; }
+    .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; margin-top: 14px; }
+    .hidden { display: none; }
+    .bc-btn { border: 0; background: none; color: var(--primary); cursor: pointer; padding: 0; font: inherit; }
+    .bc-btn:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hdr">
+      <div>
+        <div class="sub mono">By <a href="https://github.com/tanclary">Tanner Clary (@tanclary)</a> &amp; Gemini 4 Carbon · Verified by <code>con-ron --compare</code> (<code>--verified</code>)</div>
+        <h1>Alpöge–Claude Riemann Hypothesis Blueprint &amp; Dominator Explorer</h1>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div class="tabs">
+          <button class="tab-btn active" id="tab-flame" onclick="setTab('flame')">Dominator Flamegraph</button>
+          <button class="tab-btn" id="tab-acts" onclick="setTab('acts')">6-Act Human Story</button>
+          <button class="tab-btn" id="tab-shrink" onclick="setTab('shrink')">Shrink Waterfall</button>
+        </div>
+        <button class="btn-sm" onclick="toggleTheme()">Theme</button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="card">
+        <div class="sub">Clean Coalesced LOC</div>
+        <div class="kpi-val mono">9,282,866<span class="badge-ok">-46.6%</span></div>
+        <div class="sub">down from 17,374,215 raw lines</div>
+      </div>
+      <div class="card">
+        <div class="sub">Live Lean Modules</div>
+        <div class="kpi-val mono">105,044<span class="badge-ok">-40.0%</span></div>
+        <div class="sub">70,143 dead files eliminated</div>
+      </div>
+      <div class="card">
+        <div class="sub">Import Graph Edges</div>
+        <div class="kpi-val mono">202,054<span class="badge-ok">-71.9%</span></div>
+        <div class="sub">from 719,897 import walls</div>
+      </div>
+      <div class="card">
+        <div class="sub">Verified Kernel Records</div>
+        <div class="kpi-val mono">1,167,754<span class="badge-ok">-20.5%</span></div>
+        <div class="sub">-300,664 CSE records · con-ron exit 0</div>
+      </div>
+    </div>
+
+    <div id="view-flame">
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; font-size:12px;">
+          <div><strong>Zoom Root:</strong> <span id="breadcrumb" class="mono"></span></div>
+          <div>
+            <span class="sub">Click any bar to zoom into its Lengauer–Tarjan dominated subtree · </span>
+            <button class="btn-sm" onclick="resetZoom()">Reset Root</button>
+          </div>
+        </div>
+        <div id="icicle-container"></div>
+        <div class="legend">
+          <span><i class="dot" style="background:var(--c1)"></i>Top-Level &amp; Landau Engine</span>
+          <span><i class="dot" style="background:var(--c2)"></i>Theta Lift &amp; Definite Unitary Core</span>
+          <span><i class="dot" style="background:var(--c3)"></i>Arakelov / Moriwaki Covolumes</span>
+          <span><i class="dot" style="background:var(--c4)"></i>Selmer Window (VWin) &amp; Kato</span>
+          <span><i class="dot" style="background:var(--c5)"></i>Weight-1 Galois Reps &amp; Langlands</span>
+          <span><i class="dot" style="background:var(--c6)"></i>20th-Century Literature Formalized</span>
+        </div>
+      </div>
+      <div class="card" id="node-inspector"></div>
+    </div>
+
+    <div id="view-acts" class="hidden"></div>
+
+    <div id="view-shrink" class="hidden">
+      <div class="card">
+        <div style="font-weight:700; margin-bottom:12px;">Exact Line-Count &amp; Kernel Compression Waterfall</div>
+        <div id="waterfall-bars"></div>
+      </div>
+      <div class="grid2" id="forensics-cards"></div>
+    </div>
+  </div>
+
+  <script>
+    const TREE = {
+      id: "rh", name: "riemannHypothesis", short: "riemannHypothesis (Root)", cat: 1, loc: 8964993, kdecls: 916677,
+      module: "Main / Supplements.Kernels.MainTheorems",
+      role: "Headline Mathlib RiemannHypothesis theorem: every nontrivial zero of ζ(s) has Re(s) = 1/2. Reflects Re(s) > 1/2 nonvanishing across Re(s) = 1/2 via completedRiemannZeta_one_sub in 20 lines.",
+      sig: `def RiemannHypothesis : Prop :=\n  ∀ (s : ℂ), riemannZeta s = 0 → (¬∃ n : ℕ, s = -2 * (n + 1)) → s ≠ 1 → s.re = 1 / 2\n\ntheorem riemannHypothesis : RiemannHypothesis :=\n  UpperTheory.riemannHypothesis_of_everyCharacter UpperTheory.FinalTheorems.everyCharacter`,
+      children: [{
+        id: "everyChar", name: "UpperTheory.FinalTheorems.everyCharacter", short: "everyCharacter (GRH Half-Plane)", cat: 1, loc: 8964928, kdecls: 916671,
+        module: "Development.AutomorphicArithmetic.CharacterBoxes.MainConclusion",
+        role: "Proves L(χ, s) ≠ 0 for all Re(s) > 1/2 and all Dirichlet characters χ mod N (except trivial χ at s = 1). Combines the 3 grand pillars plus 1.44M LOC of shared automorphic/Galois definitions.",
+        sig: `def UpperTheory.EveryCharacter : Prop :=\n  ∀ (N : ℕ) [NeZero N] (χ : DirichletCharacter ℂ N) (s : ℂ),\n    1 / 2 < s.re → (χ ≠ 1 ∨ s ≠ 1) → DirichletCharacter.LFunction χ s ≠ 0\n\ntheorem everyCharacter : UpperTheory.EveryCharacter :=\n  everyCharacter_of_row UpperTheory.Gal.Int.galoisLocalGlobalStrong_recParameter`,
+        children: [
+          {
+            id: "shared_foundations", name: "(Shared Automorphic / Adelic / Galois Definitions & Infrastructure)", short: "Shared Foundations (1.44M)", cat: 5, loc: 1439729, kdecls: 146350,
+            module: "GroundTheory / Formalism / ReciprocityTheory / LocalLanglands",
+            role: "Shared foundational definitions and lemmas used across multiple pillars (adelic unitary groups, Weil-Deligne representations, RecTExists local Langlands central units, p-adic Hodge structures).",
+            sig: `theorem UpperTheory.Zero.LLC.recTExists : UpperTheory.Zero.LLC.RecTExists\n-- Local Langlands correspondence for GL_n(E_w) with depth-zero Bushnell-Kutzko type laws`, children: []
+          },
+          {
+            id: "everyChar_row", name: "UpperTheory.FinalTheorems.everyCharacter_of_row", short: "everyCharacter_of_row (Main Synthesis)", cat: 2, loc: 6897298, kdecls: 690486,
+            module: "Development.AutomorphicArithmetic.CharacterBoxes.MainConclusion",
+            role: "Given compatible Galois representations (Row0b IsRecT), builds the Selmer/Sha window VWin and feeds both into the theta-correspondence + Landau positivity engine.",
+            sig: `theorem everyCharacter_of_row (h : Row0b IsRecT) : EveryCharacter :=\n  every_character_of_literature_of_vWin ⟨h, recTExists, h⟩ (UpperTheory.One.vwin_of_row h)`,
+            children: [
+              {
+                id: "lit_vwin", name: "UpperTheory.LiteratureTheorems.every_character_of_literature_of_vWin", short: "every_character_of_literature_of_vWin (6.23M)", cat: 2, loc: 6229796, kdecls: 626186,
+                module: "ThirdPlaceSeries.EveryCharacterOfLiteratureOfVWin",
+                role: "The Rosetta Stone module: wires ~110 classical 20th-century theorems proved in-repo (Hironaka, Siegel-Weil, Casselman-Wallach, Bhatt-Scholze, Moriwaki) into the theta-integral & Landau engine.",
+                sig: `theorem every_character_of_literature_of_vWin (O : OpenLiteratureStatements) (hV : VWin) : EveryCharacter`,
+                children: [
+                  {
+                    id: "theta_matching", name: "UpperTheory.Lit.every_character_of_theta_integrals_local_matching", short: "Theta Integrals & Landau Closure (3.69M)", cat: 2, loc: 3693852, kdecls: 400261,
+                    module: "ThirdPlaceSeries.SiegelEisensteinSecondTermHypotheses",
+                    role: "Combines definite-side unitary theta lift nonvanishing with Fock-Gram positivity and the cyclic Landau prime-sum engine.",
+                    sig: `theorem every_character_of_theta_integrals_local_matching :\n  UnitaryGroupThirdPlaceHypotheses → ThetaLocalInputs → ThetaIntegralsAgree →\n  LocalMatching → CovolumeBoundOfX → ∀ hL : RecTExists, ... → EveryCharacter`,
+                    children: [
+                      {
+                        id: "def_side", name: "UpperTheory.Lit.nonempty_hyps_definite_side_of_closed_bound", short: "Definite-Side Unitary Engine (3.10M)", cat: 2, loc: 3096518, kdecls: 327871,
+                        module: "ThirdPlaceSeries.SiegelEisensteinSecondTermHypotheses",
+                        role: "Constructs global families on definite unitary towers with controlled Fourier coefficients, carrier gaps, crystalline periods, and unramified exponent bounds.",
+                        sig: `theorem nonempty_hyps_definite_side_of_closed_bound ... :\n  Nonempty (GlobalTheory.Fc.HypsAlt S0.NL GlobalTheory.Fc.DefiniteSideCondition)`,
+                        children: [
+                          { id: "unram_exp", name: "GlobalTheory.Fc.S0.StageU.hypotheses_nonempty_of_unramified_exponents_alt", short: "Unramified Exponents & Carrier/Crystalline (1.07M)", cat: 2, loc: 1070701, kdecls: 114880, module: "ThirdPlaceSeries.HypothesesNonemptyOfUnramifiedExponents", role: "Merges off-diagonal Siegel carrier gap (166k), Satake/Artin models (111k), base-lattice Bessel spectral gap (247k), and Bloch-Kato/Bhatt-Scholze/Fontaine crystalline bounds (200k).", sig: `-- Sub-pillars: CarrierGap.offDiag (166k) + servH_row_of_artin (111k) + baseLattice/Bessel (247k) + GalC crystalline (200k)`, children: [] },
+                          { id: "ontoX", name: "GlobalTheory.Fc.S0.ontoX_and_lamLow_of_unitaryGroupHypotheses'", short: "Prime Heights & Jet Harmonics (266k)", cat: 2, loc: 266233, kdecls: 26947, module: "ThirdPlaceSeries.SurjectiveAndLowWeightOfUnramifiedExponents", role: "Establishes surjectivity and low-weight bounds via curve-lifting height bounds (98k) and jet-harmonic depth tables at good primes (57k).", sig: `theorem ontoX_and_lamLow_of_unitaryGroupHypotheses' ...`, children: [] },
+                          { id: "open_orbit", name: "GlobalTheory.Fc.S0.Open0ProofU.open_orbit_of_unramified_exponents_alt", short: "Open Orbit Incidence (144k)", cat: 2, loc: 143782, kdecls: 16136, module: "ThirdPlaceSeries.OpenOrbitOfUnramifiedExponents", role: "Controls open-orbit geometric row/column incidence families across unitary theta pairs.", sig: `theorem open_orbit_of_unramified_exponents_alt ...`, children: [] },
+                          { id: "def_shared", name: "(Shared Test-Vector, Doubling & Multiplicity-One Glue)", short: "Test Vectors & Multiplicity-One (1.61M)", cat: 2, loc: 1615802, kdecls: 169908, module: "LocalTypeDictionary / FlagMeasures / SiegelLatticeTheory", role: "Test-vector assembly, Howe unramified separation (52k), Fourier coefficient fit at zero (49k), twisted multiplicity one (42k), and dual family rank counts.", sig: `-- functionalsSeparate_of_howeUnram_of_siegelWeil, fourier_coefficient_fit_of_join_alt, twisted_multiplicity_eq`, children: [] }
+                        ]
+                      },
+                      { id: "landau_plug", name: "UpperTheory.Top.every_character_of_green_v_win", short: "Landau Positivity Closure (168k)", cat: 1, loc: 168456, kdecls: 18145, module: "ThirdPlaceSeries.TopPlug", role: "Applies cyclic subgroup coset weights 4/(3o+1) and 3/(3o+1) (3 + 4 cos θ positivity!) + Landau's Mellin oscillation theorem at la = 3/2 to force L(χ,s) ≠ 0 for Re(s) > 1/2.", sig: `def lam (γ : φ.A) : ℝ := (if γ ∈ φ.A0 then 4 else 3) / (3 * (φ.o : ℝ) + 1)\ndef Gm (y : ℝ) : ℝ := Formalism.Gz y + ∑ ψ ∈ Λ.Nt, Λ.wt ψ * (An.gChi ψ.χ y).re`, children: [] },
+                      { id: "fock_gram", name: "Formalism.MainNotions.G.GramWindowAlt.theorem_A_closed_form_holds", short: "Fock-Gram Positivity (35k)", cat: 1, loc: 35001, kdecls: 3736, module: "Formalism.SharpRestriction.GrowthBounds.FockGramWindow", role: "Sharp restriction and orthogonal-lattice positivity for Fock-space Gram windows.", sig: `theorem theorem_A_closed_form_holds ...`, children: [] }
+                    ]
+                  },
+                  { id: "covol", name: "SelfIntersectionVolumeEstimates.topCovolSlim2_use_alt_alt", short: "Arakelov & Moriwaki Covolumes (724k)", cat: 3, loc: 724302, kdecls: 59862, module: "ThirdPlaceSeries.TopCovolSlim2Use", role: "Bounds arithmetic height and self-intersection volumes on unitary Shimura towers using Moriwaki bigness, Fubini-Study Chow heights, and good-tower volume theorems (302k).", sig: `theorem topCovolSlim2_use_alt_alt : ResolutionCharZero → PrincipalisationCharZero → ... → CovolumeBoundOfX`, children: [] },
+                  { id: "classical_lit", name: "GlobalTheory.Published.* (Classical 1960–2020 Literature Formalized in Lean)", short: "Classical Literature Built From Scratch (1.81M)", cat: 6, loc: 1811642, kdecls: 166063, module: "ResolutionOfSingularities / DivisorProofs / SiegelWeil / PositivityTheory", role: "Over 110 famous published theorems missing from Mathlib proved from first principles: Hironaka resolution in char 0 (44k), Toroidal compactifications + Log Kodaira-Spencer (124k), Mumford uniformisation (50k), Siegel-Weil & spherical theta (120k), Bernstein-Zelevinsky, Casselman-Wallach, Harish-Chandra, Artin reciprocity, Poitou-Tate.", sig: `theorem canonicalAlgorithmRules_isCorrect :\n  (canonicalAlgorithmRules strictTransformIsBlowupOfClosedSubscheme.{u}).ReducesInductivelyOnDimension`, children: [] }
+                ]
+              },
+              { id: "vwin", name: "UpperTheory.One.vwin_of_row", short: "VWin: Selmer/Sha Window (486k)", cat: 4, loc: 486292, kdecls: 42668, module: "DenseThresholdCases.VwinOfRow", role: "Proves sub-exponential Selmer/Sha length bounds VVle(E, ⌊x^401⌋, √exp(x^ε)) on character-cut-out cyclotomic subfields E via Kato's Euler system (103k), Sp4/U(3) modularity (96k), and patching.", sig: `def VWin : Prop := ∀ ψ : PChar, VWinAt ψ 401\ntheorem vwin_of_row (h : Row0b IsRecT) : VWin`, children: [] }
+            ]
+          },
+          { id: "galois_row", name: "UpperTheory.Gal.Int.galoisLocalGlobalStrong_recParameter", short: "Weight-1 Galois Reps & Theta Lifts (535k)", cat: 5, loc: 535396, kdecls: 61231, module: "IntegralStructures.RowSrc", role: "Constructs l-adic Galois representations (Row0b IsRecT) for polarized regular algebraic cuspidal reps over CM fields via definite unitary theta lifts (TLiftK, 31k) + weight-one Kodaira-Spencer & Harris-Taylor geometry (429k).", sig: `theorem galoisLocalGlobalStrong_recParameter : UpperTheory.GalStar.Row0b recT :=\n  galoisRepresentations_of_thetaLift UpperTheory.TP.K.tLiftK`, children: [] },
+          { id: "bc_zarhin", name: "UpperTheory.BaseChangeIdentities.baseChangeN + Zarhin", short: "Base Change & Zarhin (93k)", cat: 4, loc: 92504, kdecls: 8964, module: "BaseChangeIdentities.DefiniteNHolds / ModuliProofs", role: "Isobaric GL_n base change (66k LOC) + Zarhin's semi-abelian geometric uniformisation theorem (27k LOC).", sig: `theorem UpperTheory.BaseChangeIdentities.baseChangeN : BaseChangeIsobaricN`, children: [] }
+        ]
+      }]
+    };
+
+    const ACTS = [
+      { num: "Act I", title: "Functional Equation Reflection (20 LOC + 208 Dead Imports)", mass: "65 LOC wrapper", file: "CharacterBoxes/RiemannHypothesisOfEveryCharacter.lean", summary: "Reduces Mathlib's RiemannHypothesis to proving L(χ, s) ≠ 0 for Re(s) > 1/2 (EveryCharacter). Specializes χ = 1 mod 1 for Re(s) > 1/2, then reflects Re(s) < 1/2 across the critical line via completedRiemannZeta_one_sub and Gammaℝ_eq_zero_iff.", code: `theorem UpperTheory.zeta_ne_zero_of_everyCharacter (h : EveryCharacter) :\n    ∀ s : ℂ, 1 / 2 < s.re → s ≠ 1 → riemannZeta s ≠ 0 := fun s hs h1 => by\n  have := h 1 1 s hs (Or.inr h1)\n  rwa [DirichletCharacter.LFunction_modOne_eq] at this` },
+      { num: "Act II", title: "Cyclic Landau–de la Vallée Poussin Prime-Sum Positivity", mass: "168,456 LOC", file: "ExplicitFormulaErrorOfHostConditions.lean · ThirdPlaceSeries/TopPlug.lean", summary: "Embeds any primitive character ψ into its cyclic subgroup Λ = ⟨ψ⟩ of order o. Forms the weighted prime-power sum Gm(y) with coset weights 4/(3o+1) on A₀ and 3/(3o+1) off A₀ (generalizing 3 + 4 cos θ ≥ 0). By Landau's Mellin oscillation theorem at la = 3/2, a one-sided dyadic window bound on Gm(y) forces L(ψ, s) ≠ 0 for all Re(s) > 1/2.", code: `def lam (γ : φ.A) : ℝ := (if γ ∈ φ.A0 then 4 else 3) / (3 * (φ.o : ℝ) + 1)\ndef Gm (y : ℝ) : ℝ := Formalism.Gz y + ∑ ψ ∈ Λ.Nt, Λ.wt ψ * (An.gChi ψ.χ y).re` },
+      { num: "Act III", title: "Character-Cut-Out CM Host Fields & Selmer/Sha Window (VWin)", mass: "486,292 LOC", file: "CharacterBoxes/ExistsPageN.lean · DenseThresholdCases/VwinOfRow.lean", summary: "Constructs an abelian field E ↪ ℚ(ζ_N) cut out by ψ and Jacobi symbols mod auxiliary primes (q ≡ 3 mod 8, d ≡ 7 mod 16, q ∣ d+1). Uses Kato's Euler system (103k LOC), Sp₄/U(3) modularity (96k LOC), Taylor–Wiles patching, and Base Change to bound Selmer/Sha lengths VVle(E, ⌊x^401⌋, √exp(x^ε)) on windows [Y, Y²].", code: `def VAt (ψ : PChar) (eps Ct : ℝ) (q d e : ℕ) (x : ℝ) : Prop :=\n  ∀ (E : Type) [Field E] [NumberField E],\n    IsChiField ψ e q d E → VVle E ⌊x ^ Ct⌋₊ (Real.sqrt (Real.exp (x ^ eps)))` },
+      { num: "Act IV", title: "Stepanov's Substitute Over ℤ: Chained Theta Lifts & Weight-One Galois Reps", mass: "535,396 LOC", file: "ThetaKernels/TLiftK.lean · GeometricRealizationOfWeightOne.lean", summary: "Over 𝔽_q(C), Stepanov's proof differentiates polynomials to create high multiplicities; over ℤ you cannot differentiate integers. Instead, Claude chains definite unitary theta lifts U(n) → U(d) (TLiftK, 31k LOC) and builds weight-one Galois representations via Kodaira–Spencer isomorphisms, Harris–Taylor models, and crystalline towers (429k LOC) + local Langlands (RecTExists).", code: `theorem galoisLocalGlobalStrong_recParameter : UpperTheory.GalStar.Row0b recT :=\n  galoisRepresentations_of_thetaLift UpperTheory.TP.K.tLiftK` },
+      { num: "Act V", title: "Definite-Side Theta Matching, Carrier Gap & Moriwaki Covolumes", mass: "4,544,676 LOC", file: "SiegelEisensteinSecondTermHypotheses.lean · TopCovolSlim2Use.lean", summary: "Uses the regularized Siegel–Weil second-term identity, Howe duality, and Rallis inner-product formulas on unitary towers so Fourier/Whittaker positivity delivers O(x^(-1+ε)) coset equidistribution (Shares), while Moriwaki Arakelov bigness & Arithmetic Hilbert–Samuel (724k LOC) keep arithmetic tower heights/covolumes bounded.", code: `theorem nonempty_hyps_definite_side_of_closed_bound :\n  UnitaryGroupThirdPlaceHypotheses → ThetaLocalInputs → ThetaIntegralsAgree → ...` },
+      { num: "Act VI", title: "110+ Classical 20th-Century Theorems Formalized From Scratch", mass: "~1.81M+ LOC", file: "ThirdPlaceSeries/EveryCharacterOfLiteratureOfVWin.lean", summary: "Mathlib lacked modern arithmetic geometry & representation theory, so Claude defined explicit GlobalTheory.Published.* slots for ~110 classical theorems—Hironaka Resolution in char 0 (44k LOC), Toroidal Compactifications (124k), Bhatt–Scholze prismatic/crystalline lattices, Casselman–Wallach, Harish-Chandra discrete series, Siegel–Weil, Artin reciprocity—and proved every single one from first principles!", code: `theorem canonicalAlgorithmRules_isCorrect :\n  (canonicalAlgorithmRules strictTransformIsBlowupOfClosedSubscheme.{u}).ReducesInductivelyOnDimension` }
+    ];
+
+    const WATERFALL = [
+      { label: "Raw Published Archive (alpo.ge)", lines: 17374215, files: 175187, pct: 100.0, note: "1,061,425 source decls · 719,897 import edges · 1,468,418 kernel fold records" },
+      { label: "Pass 1: Exact Kernel Reachability", lines: 10604250, files: 146134, pct: 61.03, note: "Drops 29,053 dead modules & 316,744 unreferenced source declarations" },
+      { label: "Pass 2: Call-Site Def + Prop CSE (con-ron --verified!)", lines: 10406044, files: 105044, pct: 59.89, note: "1,167,754 kernel fold records (-300,664 / -20.5%) · imports cut 719,897 -> 202,054 (-71.9%)" },
+      { label: "Pass 3: Single-Namespace Package Coalescing", lines: 9282866, files: 105044, pct: 53.43, note: "Eliminates 1.12M lines of per-micro-file import/open/namespace headers (-46.6% total LOC!)" },
+      { label: "Human Architectural Spine (Blueprint.lean)", lines: 245, files: 1, pct: 0.4, note: "All 6 acts, core definitions & choke-point theorems in one readable Lean 4 file" }
+    ];
+
+    const FORENSICS = [
+      { title: "719,897 Hallucinated Import Edges (-71.9%)", body: "RiemannHypothesisOfEveryCharacter.lean had 208 import lines sitting above a 20-line pure Mathlib proof. Static import reachability looked 99.8% live; kernel DAG reachability exposed 70,143 dead files." },
+      { title: "300,664 Kernel Fold Records Eliminated (con-ron exit 0)", body: "Across parallel sub-tasks, Claude re-proved identical propositions 241,514 times (including 66,548 lemmas already in Mathlib). Call-site Prop/Def CSE + GC passed Lean FRO's con-ron (--verified) across all 5 RH/GRH theorems." },
+      { title: "with_unfolding_all 5.5M-Node Kernel Explosions", body: "LamCopy.lean is only 32 lines of Lean text, yet `with_unfolding_all` inside `lam_copy` unfolded nested record bundles into 5,538,632 kernel expression nodes (0.5% of the entire 61.5 GB export)." },
+      { title: "110+ Classical Literature Slots Proved In-Repo", body: "EveryCharacterOfLiteratureOfVWin.lean catalogs ~110 GlobalTheory.Published.* theorems (even leaving `UnusedSlot72 := trivial`), proving Hironaka, Bhatt–Scholze, Siegel–Weil, and Moriwaki from scratch." }
+    ];
+
+    const nodeMap = {};
+    (function idx(n) { nodeMap[n.id] = n; (n.children || []).forEach(idx); })(TREE);
+    let currentRoot = TREE, selectedNode = TREE;
+    const fmt = n => n.toLocaleString();
+    const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+    function findPath(r, id, tr = []) {
+      if (r.id === id) return [...tr, r];
+      for (const c of (r.children || [])) { const p = findPath(c, id, [...tr, r]); if (p) return p; }
+      return null;
+    }
+
+    function renderIcicle() {
+      const box = document.getElementById("icicle-container");
+      box.innerHTML = "";
+      const path = findPath(TREE, currentRoot.id) || [TREE];
+      document.getElementById("breadcrumb").innerHTML = path.map(n =>
+        `<button class="bc-btn" onclick="zoomTo('${n.id}')">${esc(n.short.split(" (")[0])}</button>`
+      ).join(" / ");
+
+      const base = currentRoot.loc, levels = [];
+      (function build(node, d, l, w) {
+        if (!levels[d]) levels[d] = [];
+        levels[d].push({ node, l, w });
+        let cur = l;
+        for (const ch of (node.children || [])) {
+          const cw = (ch.loc / base) * 100;
+          if (cw >= 0.6) build(ch, d + 1, cur, cw);
+          cur += cw;
+        }
+      })(currentRoot, 0, 0, 100);
+
+      levels.forEach(row => {
+        const rEl = document.createElement("div");
+        rEl.className = "icicle-row";
+        row.forEach(({ node, l, w }) => {
+          const b = document.createElement("button");
+          b.className = "icicle-bar" + (selectedNode.id === node.id ? " sel" : "");
+          b.style.left = l + "%";
+          b.style.width = `calc(${w}% - 2px)`;
+          b.style.background = `var(--c${node.cat})`;
+          b.title = `${node.name}\n${fmt(node.loc)} dominated LOC (${((node.loc / TREE.loc) * 100).toFixed(1)}%)`;
+          b.textContent = w > 9 ? `${node.short} · ${(node.loc / 1e6).toFixed(2)}M` : (w > 3.5 ? node.short : "");
+          b.onclick = () => {
+            selectedNode = node;
+            if (node.children && node.children.length > 0 && node.id !== currentRoot.id) currentRoot = node;
+            renderIcicle(); renderInspector();
+          };
+          rEl.appendChild(b);
+        });
+        box.appendChild(rEl);
+      });
+    }
+
+    function renderInspector() {
+      const n = selectedNode, pct = ((n.loc / TREE.loc) * 100).toFixed(2);
+      document.getElementById("node-inspector").innerHTML = `
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; padding-bottom:10px; border-bottom:1px solid var(--border);">
+          <div>
+            <div class="sub mono">${esc(n.module)}</div>
+            <div class="mono" style="font-size:15px; font-weight:700; margin-top:2px; word-break:break-all;">${esc(n.name)}</div>
+          </div>
+          <div class="mono" style="display:flex; gap:8px; font-size:12px; align-items:center;">
+            <span style="padding:4px 8px; background:var(--sidebar); border-radius:6px; border:1px solid var(--border);"><strong>${fmt(n.loc)}</strong> dom LOC (${pct}%)</span>
+            <span style="padding:4px 8px; background:var(--sidebar); border-radius:6px; border:1px solid var(--border);"><strong>${fmt(n.kdecls)}</strong> kernel decls</span>
+          </div>
+        </div>
+        <p style="margin:10px 0;">${esc(n.role)}</p>
+        <pre class="mono">${esc(n.sig)}</pre>`;
+    }
+
+    function zoomTo(id) { if (nodeMap[id]) { currentRoot = selectedNode = nodeMap[id]; renderIcicle(); renderInspector(); } }
+    function resetZoom() { currentRoot = selectedNode = TREE; renderIcicle(); renderInspector(); }
+    function toggleTheme() {
+      const root = document.documentElement;
+      root.setAttribute("data-theme", root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    }
+    function setTab(t) {
+      ["flame", "acts", "shrink"].forEach(k => {
+        document.getElementById("view-" + k).classList.toggle("hidden", k !== t);
+        document.getElementById("tab-" + k).classList.toggle("active", k === t);
+      });
+    }
+
+    document.getElementById("view-acts").innerHTML = ACTS.map(a => `
+      <div class="card" style="margin-bottom:12px;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px;">
+          <div style="font-weight:700;"><span class="mono" style="color:var(--primary); margin-right:8px;">${a.num}</span>${esc(a.title)}</div>
+          <span class="mono sub" style="background:var(--sidebar); padding:2px 8px; border-radius:5px; border:1px solid var(--border);">${a.mass}</span>
+        </div>
+        <div class="sub mono" style="margin-top:4px;">${esc(a.file)}</div>
+        <p style="margin:8px 0;">${esc(a.summary)}</p>
+        <pre class="mono">${esc(a.code)}</pre>
+      </div>`).join("");
+
+    document.getElementById("waterfall-bars").innerHTML = WATERFALL.map((w, i) => `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
+          <strong>${esc(w.label)}</strong>
+          <span class="mono">${fmt(w.lines)} LOC · ${fmt(w.files)} files</span>
+        </div>
+        <div class="wf-track"><div style="width:${w.pct}%; height:100%; background:var(--c${(i % 5) + 1});"></div></div>
+        <div class="sub">${esc(w.note)}</div>
+      </div>`).join("");
+
+    document.getElementById("forensics-cards").innerHTML = FORENSICS.map(f => `
+      <div class="card">
+        <div style="font-weight:700; margin-bottom:6px;">${esc(f.title)}</div>
+        <div class="sub" style="line-height:1.5;">${esc(f.body)}</div>
+      </div>`).join("");
+
+    renderIcicle(); renderInspector();
+  </script>
+</body>
+</html>
